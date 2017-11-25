@@ -20,25 +20,17 @@ connection.connect(function(err) {
   if (err) throw err;
 
   console.log(colors.green("\n*********************** WELCOME TO BAMAZON **************************\n"));
-  runBamazon();
+  showInvenory();
+  setTimeout(makeTransaction, 500);
 });
 
-
-//============================================================
-// runBamazon() is the main driver for the application 
-//============================================================
-function runBamazon()
-{
-    showInvenory();
-    setTimeout(makeTransaction, 500);
-}
 
 //============================================================
 // showInventory() shows the current inventory 
 //============================================================
 function showInvenory()
 {
-  console.log("\n\n" + padString("ID", 22) + padString("Product Name", 36) 
+  console.log("\n" + padString("ID", 22) + padString("Product Name", 36) 
               + padString("Department", 35) + padString("Price", 23) + padString("Quantity", 15));
   
   console.log(colors.green("====================================================================="));
@@ -76,12 +68,12 @@ function makeTransaction()
             { item_id: answer.id }, function(err, results) {
               if (results[0].stock_quantity < answer.quantity)
               {
-                console.log(colors.cyan("\nSorry, we don't have the requested quantity in stock."));
-                console.log(colors.cyan("Please adjust quantity or choose another item."));
+                console.log(colors.cyan("\n Sorry, we don't have the requested quantity in stock."));
+                console.log(colors.cyan(" Please adjust quantity or choose another item."));
               }
               else
               {
-                console.log(colors.cyan("\n\nYou requested to purchase " + answer.quantity + " " 
+                console.log(colors.cyan("\n\n You requested to purchase " + answer.quantity + " " 
                             + results[0].product_name + "(s) at $" + results[0].price + " each"));
                     
                 var newQuantity = results[0].stock_quantity - answer.quantity;
@@ -91,10 +83,11 @@ function makeTransaction()
                                   [{stock_quantity: newQuantity},{item_id: answer.id}],
                           function (err){
                                   if(err)throw err;
-                                  console.log(colors.cyan("Transaction complete, your total purchase is: $" + total));
+                                  console.log(colors.cyan(" Transaction complete, your total purchase is: $" + total));
                           });
               }
 
+              setTimeout(showInvenory, 1000);
               setTimeout(nextAction, 2500);
         });
     });    
@@ -106,6 +99,7 @@ function makeTransaction()
 //================================================================
 function nextAction()
 {
+
     inquirer.prompt([{
       name: "continue",
       type: "list",
@@ -114,7 +108,7 @@ function nextAction()
     }]).then(function(answer){
         if (answer.continue === "YES")
         {
-           runBamazon();
+           makeTransaction();
         } 
         else 
         {
