@@ -1,0 +1,24 @@
+{
+  "name": "bamazon",
+  "version": "1.0.0",
+  "description": "HW10 - Bamazon Application",
+  "main": "bamazonCustomer.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/maxsho/bamazon.git"
+  },
+  "author": "Majid",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/maxsho/bamazon/issues"
+  },
+  "homepage": "https://github.com/maxsho/bamazon#readme",
+  "dependencies": {
+    "colors": "^1.1.2",
+    "inquirer": "^4.0.0",
+    "mysql": "^2.15.0"
+  }
+}
