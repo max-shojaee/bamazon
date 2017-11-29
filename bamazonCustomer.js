@@ -6,6 +6,11 @@ var inquirer = require("inquirer");
 var colors = require('colors');
 
 //============================================================
+// Global Variables
+//============================================================
+var maxItemID = 0;
+
+//============================================================
 // Establish connection with MySQL server
 //============================================================
 var connection = mysql.createConnection({
@@ -20,7 +25,7 @@ connection.connect(function(err) {
   if (err) throw err;
 
   console.log(colors.green("\n*********************** WELCOME TO BAMAZON **************************\n"));
-  showInvenory();
+  showInventory();
   setTimeout(makeTransaction, 500);
 });
 
@@ -28,20 +33,22 @@ connection.connect(function(err) {
 //============================================================
 // showInventory() shows the current inventory 
 //============================================================
-function showInvenory()
+function showInventory()
 {
-  console.log("\n" + padString("ID", 22) + padString("Product Name", 36) 
-              + padString("Department", 35) + padString("Price", 23) + padString("Quantity", 15));
+  console.log("\n" + padString("ID", 22) + padString("Product Name", 51) 
+              + padString("Department", 41) + padString("Price", 23) + padString("Quantity", 15));
   
-  console.log(colors.green("====================================================================="));
+  console.log(colors.green("===================================================================================="));
 
   connection.query("SELECT * FROM products", function(err, results) {
       if (err) throw err;
 
       for (var i = 0; i < results.length; i++) 
       {
-          console.log(colors.green("Id: " + padString(results[i].item_id, 10) + " | " + padString(results[i].product_name, 30) + " | "
-              + padString(results[i].department_name, 30) + " | $" + padString(results[i].price, 15) + " | " + results[i].stock_quantity));
+          console.log(colors.green("Id: " + padString(results[i].item_id, 10) + " | " + padString(results[i].product_name, 45) + " | "
+              + padString(results[i].department_name, 36) + " | $" + padString(results[i].price, 15) + " | " + results[i].stock_quantity));
+
+           maxItemID = results[i].item_id;
       }
 
       console.log("\n");
@@ -64,32 +71,55 @@ function makeTransaction()
       message: "Enter the quantity to purchase: "
     }
     ]).then(function(answer) {
-          connection.query("SELECT * FROM products WHERE ?", 
-            { item_id: answer.id }, function(err, results) {
-              if (results[0].stock_quantity < answer.quantity)
-              {
-                console.log(colors.cyan("\n Sorry, we don't have the requested quantity in stock."));
-                console.log(colors.cyan(" Please adjust quantity or choose another item."));
-              }
-              else
-              {
-                console.log(colors.cyan("\n\n You requested to purchase " + answer.quantity + " " 
-                            + results[0].product_name + "(s) at $" + results[0].price + " each"));
-                    
-                var newQuantity = results[0].stock_quantity - answer.quantity;
-                var total = answer.quantity * results[0].price;
 
-                connection.query( "UPDATE products SET ? WHERE ?",
-                                  [{stock_quantity: newQuantity},{item_id: answer.id}],
-                          function (err){
-                                  if(err)throw err;
-                                  console.log(colors.cyan(" Transaction complete, your total purchase is: $" + total));
-                          });
-              }
+          var quantity = parseInt(answer.quantity);
+          var id = parseInt(answer.id);
 
-              setTimeout(showInvenory, 1000);
-              setTimeout(nextAction, 2500);
-        });
+          // validate the item ID
+          if (isNaN(id))
+          {
+            console.log(colors.red("\n Invalid item ID! Please try again."));
+          }
+          else if (id > maxItemID)
+          {
+            console.log(colors.red("\n Item ID could not be found! Please try again."));
+          }
+          // validate the quantity
+          else if (isNaN(quantity))
+          {
+            console.log(colors.red("\n Invalid Quantity! Please try again."));
+          }
+          else
+          {
+             // search the database for the item with the given item ID
+             connection.query("SELECT * FROM products WHERE ?", 
+                {item_id: id}, function(err, results) {
+
+                  if (results[0].stock_quantity < quantity)
+                  {
+                      console.log(colors.cyan("\n Sorry, we don't have the requested quantity in stock."));
+                      console.log(colors.cyan(" Please adjust quantity or choose another item."));
+                  }
+                  else
+                  {
+                      console.log(colors.cyan("\n\n You requested to purchase " + quantity + " " 
+                                  + results[0].product_name + "(s) at $" + results[0].price + " each"));
+                          
+                      var newQuantity = results[0].stock_quantity - quantity;
+                      var total = quantity * results[0].price;
+
+                      connection.query( "UPDATE products SET ? WHERE ?",
+                                        [{stock_quantity: newQuantity},{item_id: id}],
+                                function (err){
+                                        if(err)throw err;
+                                        console.log(colors.cyan(" Transaction complete, your total purchase is: $" + total));
+                                });
+                  }
+           });
+        }
+
+        setTimeout(showInventory, 1000);
+        setTimeout(nextAction, 2000);
     });    
 }
 
@@ -112,6 +142,7 @@ function nextAction()
         } 
         else 
         {
+           console.log(colors.cyan("Thank you for shopping at BAMAZON!"));
            connection.end();
            return;
         }
