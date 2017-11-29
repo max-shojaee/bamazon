@@ -212,10 +212,7 @@ function addNewProduct()
     ]).then(function(answer) {
 
          price_str = answer.price.replace("$", "");
-         console.log(">>>>> split " + price_str);
          var price = parseFloat(price_str);
-        console.log(">>>>> price " + price);
-
 
          var quantity = parseInt(answer.quantity);
 
