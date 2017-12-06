@@ -1,6 +1,7 @@
 //============================================================
 // Dependencies
 //============================================================
+var util = require("./utility.js");
 var mysql = require("mysql");
 var inquirer = require("inquirer");
 var colors = require('colors');
@@ -78,8 +79,8 @@ function displayMenu()
 //============================================================
 function showInventory()
 {
-  console.log("\n" + padString("ID", 22) + padString("Product Name", 51) 
-              + padString("Department", 41) + padString("Price", 23) + padString("Quantity", 15));
+  console.log("\n" + util.padString("ID", 22) + util.padString("Product Name", 51) 
+              + util.padString("Department", 41) + util.padString("Price", 23) + util.padString("Quantity", 15));
   
   console.log(colors.green("===================================================================================="));
 
@@ -88,8 +89,8 @@ function showInventory()
 
       for (var i = 0; i < results.length; i++) 
       {
-          console.log(colors.green("Id: " + padString(results[i].item_id, 10) + " | " + padString(results[i].product_name, 45) + " | "
-              + padString(results[i].department_name, 36) + " | $" + padString(results[i].price, 15) + " | " + results[i].stock_quantity));
+          console.log(colors.green("Id: " + util.padString(results[i].item_id, 10) + " | " + util.padString(results[i].product_name, 45) + " | "
+              + util.padString(results[i].department_name, 36) + " | $" + util.padString(results[i].price, 15) + " | " + results[i].stock_quantity));
 
            maxItemID = results[i].item_id;
       }
@@ -105,8 +106,8 @@ function showInventory()
 //============================================================
 function showLowInventory()
 {
-  console.log("\n" + padString("ID", 22) + padString("Product Name", 36) 
-              + padString("Department", 35) + padString("Price", 23) + padString("Quantity", 15));
+  console.log("\n" + util.padString("ID", 22) + util.padString("Product Name", 36) 
+              + util.padString("Department", 35) + util.padString("Price", 23) + util.padString("Quantity", 15));
   
   console.log(colors.green("====================================================================="));
 
@@ -115,8 +116,8 @@ function showLowInventory()
       if (err) throw err;
       for (var i = 0; i < results.length; i++) 
       {
-          console.log(colors.green("Id: " + padString(results[i].item_id, 10) + " | " + padString(results[i].product_name, 30) + " | "
-              + padString(results[i].department_name, 30) + " | $" + padString(results[i].price, 15) + " | " + results[i].stock_quantity));
+          console.log(colors.green("Id: " + util.padString(results[i].item_id, 10) + " | " + util.padString(results[i].product_name, 30) + " | "
+              + util.padString(results[i].department_name, 30) + " | $" + util.padString(results[i].price, 15) + " | " + results[i].stock_quantity));
       }
 
       console.log("\n");
@@ -252,27 +253,4 @@ function addNewProduct()
           setTimeout(showInventory, 500);
           setTimeout(displayMenu, 1000);
     });    
-}
-
-
-//================================================================
-// padString() pads a string with blanks up to the specified width. 
-// If the item's length is larger than the width, the length of the 
-// item will be truncated.
-//================================================================
-function padString(item, width)
-{
-    var str ="";
-    str += item;
-
-    if (str.length < width)
-    {
-      for (var i=str.length; i < width-str.length; i++)
-        str += " ";
-    }
-    else 
-    {
-      str.length = width;
-    }
-    return str;
 }
